@@ -1,0 +1,41 @@
+              ┌─────────────────────────────┐
+              │     CMS / HRSA DATA        │
+              │ (CSV / Public Datasets)    │
+              └─────────────┬──────────────┘
+                            │
+                            ▼
+              ┌─────────────────────────────┐
+              │        RAW LAYER            │
+              │ raw_* tables               │
+              └─────────────┬──────────────┘
+                            │
+                            ▼
+              ┌─────────────────────────────┐
+              │       STAGING LAYER         │
+              │ stg_* cleaned tables        │
+              │ - cleaned IDs               │
+              │ - cleaned ZIP codes         │
+              │ - standardized scores       │
+              └─────────────┬──────────────┘
+                            │
+                            ▼
+              ┌─────────────────────────────┐
+              │     WAREHOUSE LAYER         │
+              │ dim_hospital                │
+              │ dim_measure                 │
+              │ fact_* tables               │
+              └─────────────┬──────────────┘
+                            │
+                            ▼
+              ┌─────────────────────────────┐
+              │   ANALYTICAL VIEW LAYER     │
+              │ vw_* benchmarks             │
+              │ vw_performance_summary      │
+              │ vw_performance_export       │
+              └─────────────┬──────────────┘
+                            │
+                            ▼
+              ┌─────────────────────────────┐
+              │        POWER BI             │
+              │ Dashboards & Insights       │
+              └─────────────────────────────┘

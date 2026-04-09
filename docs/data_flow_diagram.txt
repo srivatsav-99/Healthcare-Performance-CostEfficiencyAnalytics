@@ -1,0 +1,46 @@
+CMS Datasets + HRSA ZIP
+        │
+        ▼
+[ RAW TABLES ]
+        │
+        ▼
+[ STAGING ]
+- clean facility_id
+- clean zip_code
+- remove ambiguous hospitals
+        │
+        ▼
+[ DIMENSIONS ]
+- dim_hospital (with rural_flag)
+- dim_measure
+        │
+        ▼
+[ FACT TABLES ]
+- hcahps
+- infections
+- readmissions
+- spending
+- complications
+- timely care
+        │
+        ▼
+[ BENCHMARK VIEWS ]
+- cost
+- safety
+- outcomes
+- readmission
+- patient experience
+        │
+        ▼
+[ SUMMARY VIEW ]
+- aggregated scores
+        │
+        ▼
+[ EXPORT VIEW ]
+- final dataset
+        │
+        ▼
+[ CSV EXPORT ]
+        │
+        ▼
+[ POWER BI DASHBOARD ]
