@@ -1,120 +1,254 @@
-\# Healthcare Performance \& Cost Efficiency Analytics
+# Healthcare Performance & Cost Efficiency Analytics
 
+## Project Overview
 
+This project analyzes hospital performance across the United States using publicly available CMS and HRSA datasets. The goal is to identify what drives hospital quality and cost efficiency across clinical outcomes, readmissions, patient experience, safety, spending, and rural/urban differences.
 
-\## Business Problem
+The project was built as an end-to-end analytics solution using:
 
-Which hospital characteristics and operational factors are associated with high performance across cost, safety, patient experience, and outcomes, and how can hospitals be benchmarked into actionable performance tiers?
+- SQL Server for data cleaning, transformation, dimensional modeling, and analytical views
+- Power BI for dashboard development and business analysis
+- GitHub for version control and documentation
 
+The final dashboard answers six business questions related to hospital underperformance, Medicare spending, readmission drivers, patient experience, rural/urban patterns, and hospitals with strong safety but weak satisfaction.
 
+---
 
-\## Final Datasets
+## Business Problem
 
-\- CMS Hospital General Information
+Healthcare performance is multi-dimensional. A hospital may perform well in one area, such as infection safety, but underperform in patient satisfaction, readmissions, or mortality outcomes.
 
-\- CMS HCAHPS
+This project addresses the question:
 
-\- CMS Complications and Deaths
+**What drives quality and cost efficiency in US hospitals, and which hospitals consistently underperform across key healthcare metrics?**
 
-\- CMS Timely and Effective Care
+---
 
-\- CMS Healthcare Associated Infections
+## Key Business Questions
 
-\- CMS Unplanned Hospital Visits
+1. Which hospitals are consistently underperforming across mortality, readmission, and patient experience?
+2. Is there a meaningful relationship between Medicare spending per patient and overall hospital quality?
+3. Which conditions drive the highest readmission rates, and which hospitals are most affected?
+4. How does patient-reported experience correlate with clinical outcome scores?
+5. Are there geographic patterns in hospital performance between rural and urban facilities?
+6. Which hospitals have high safety scores but low patient satisfaction?
 
-\- CMS Medicare Spending per Patient
+---
 
-\- HRSA ZIP-based rural classification
+## Final Datasets Used
 
+The project uses CMS hospital-level public datasets and HRSA rural classification data.
 
+| Dataset | Purpose |
+|---|---|
+| Hospital General Information | Hospital attributes, type, ownership, location, overall rating |
+| HCAHPS Patient Survey | Patient experience, top-box satisfaction, star ratings |
+| Complications and Deaths | Mortality and patient safety outcome measures |
+| Healthcare Associated Infections | Infection safety measures using SIR metrics |
+| Unplanned Hospital Visits | Readmissions, EDAC days, and return visit measures |
+| Medicare Spending per Beneficiary | Cost efficiency benchmark |
+| Timely and Effective Care | Process and care delivery measures |
+| HRSA Rural ZIP Lookup | Rural vs urban classification enrichment |
 
-\## Data Engineering Work Completed
+---
 
-\- Raw data ingestion into SQL Server
+## Architecture
 
-\- Profiling and key validation
+```text
+CMS / HRSA Raw Files
+        |
+        v
+SQL Server Raw Tables
+        |
+        v
+Staging Layer
+- Facility ID cleaning
+- ZIP code cleaning
+- Date conversion
+- Numeric score standardization
+- Ambiguous facility handling
+        |
+        v
+Warehouse Layer
+- dim_hospital
+- fact_hcahps
+- fact_complications
+- fact_infections
+- fact_readmissions
+- fact_spending
+- fact_timely_care
+        |
+        v
+Analytical Views
+- benchmark views
+- condition-level views
+- data completeness view
+- final wide Power BI view
+        |
+        v
+Power BI Dashboard
 
-\- Staging layer with cleaned Facility ID and ZIP Code
+---
 
-\- Conformed dimensions and fact tables
+## Data Modeling Approach
+
+The SQL layer follows a staged warehouse-style design.
+
+### Raw Layer
+
+Raw CMS and HRSA files are imported into SQL Server as source tables.
+
+### Staging Layer
+
+The staging layer standardizes core fields:
+
+Facility ID converted into facility_id_clean
+ZIP codes padded to five characters
+score fields converted into numeric columns where possible
+original raw score values preserved
+reporting dates converted into SQL date fields
+ambiguous hospital identifiers identified and excluded
+
+### Warehouse Layer
+
+The model contains one hospital dimension and multiple fact tables:
+
+dim_hospital
+fact_hcahps
+fact_complications
+fact_infections
+fact_readmissions
+fact_spending
+fact_timely_care
+
+### Analytical Layer
 
-\- Analytical benchmark views
+The analytical layer creates Power BI-ready views, including:
 
-\- Processed CSV exports for dashboarding
+vw_cost_benchmark
+vw_safety_benchmark
+vw_outcomes_benchmark
+vw_readmission_benchmark
+vw_patient_experience_benchmark
+vw_infection_conditions
+vw_mortality_conditions
+vw_readmission_conditions
+vw_data_completeness
+vw_hospital_performance_wide
 
+The final dashboard connects to:
+vw_hospital_performance_wide
 
+---
 
-\## Core SQL Objects
+## Key Data Quality Decisions
 
-\### Dimensions
+- Eight ambiguous Facility IDs were excluded because the same identifier mapped to multiple hospitals.
+- HRSA ZIP-based rural classification was joined using cleaned five-character ZIP codes.
+- Infection benchmarking uses only SIR-based HAI measures.
+- HCAHPS patient experience uses top-box favorable response logic.
+- Data completeness was explicitly modeled because not all hospitals report every CMS metric.
+- Null values are preserved when hospitals do not report certain measures.
 
-\- dim\_hospital
+---
 
-\- dim\_measure
+## Key Findings
 
+- Hospital performance is multi-dimensional. Patient experience, mortality, readmissions, safety, and spending do not always move together.
+- Higher Medicare spending does not show a strong positive relationship with overall hospital quality. The dashboard observed a weak negative spending-rating correlation.
+- Rural hospitals do not universally underperform. Rural and urban patterns vary depending on whether the metric is satisfaction, readmission, mortality, or spending.
+- Some hospitals show strong safety indicators but weak patient satisfaction, suggesting that operational communication and patient experience may require attention even when clinical safety is acceptable.
+- Data completeness is an important analytical constraint. Hospitals with partial reporting can distort comparisons if not handled carefully.
 
+---
 
-\### Facts
+## Dashboard Pages
 
-\- fact\_hcahps
+The final Power BI dashboard includes five analytical pages:
 
-\- fact\_complications
+1. Underperforming Hospitals Across Key Metrics
+2. Relationship Between Medicare Spending and Hospital Quality
+3. Patient Experience and Clinical Outcomes
+4. Rural vs Urban Geographic Performance Patterns
+5. Strong Safety but Weak Satisfaction
 
-\- fact\_infections
+---
 
-\- fact\_readmissions
+## Repository Structure
 
-\- fact\_spending
+Healthcare-Performance-CostEfficiencyAnalytics/
+├── assets/
+│   └── screenshots/
+├── data/
+│   ├── raw/
+│   └── processed/
+├── docs/
+│   ├── dataset_inventory.md
+│   ├── object_inventory.md
+│   ├── project_charter.md
+│   ├── schema_design.md
+│   ├── data_quality_notes.md
+│   ├── setup_guide.md
+│   └── hospital_variable_map.md
+├── powerbi/
+│   └── Group Project_Final.pbix
+├── sql/
+│   ├── 00_database_setup.sql
+│   ├── 01_raw_ingestion.sql
+│   ├── 02_profiling_checks.sql
+│   ├── 03_staging_tables.sql
+│   ├── 04_dimensions.sql
+│   ├── 05_fact_tables.sql
+│   ├── 06_validation_checks.sql
+│   ├── 07_analytical_views.sql
+│   ├── 08_benchmark_refinement.sql
+│   └── 09_final_sqlserver_analytical_layer.sql
+└── README.md
 
-\- fact\_timely\_care
+---
 
+## How to Reproduce
 
+### Option 1: Dashboard-Only Use
 
-\### Analytical Views
+Use the processed export files in:
 
-\- vw\_hospital\_master
+data/processed/
 
-\- vw\_cost\_benchmark
+These files can be loaded directly into Power BI, Excel, or Python.
 
-\- vw\_safety\_benchmark
+### Option 2: Full SQL Server Rebuild
 
-\- vw\_outcomes\_benchmark
+1. Create a SQL Server database named:
+healthcare_capacity
 
-\- vw\_readmission\_benchmark
+2. Import the raw CMS and HRSA datasets into the expected raw tables.
 
-\- vw\_patient\_experience\_benchmark
+3. Run the SQL scripts from the sql/ folder in order.
 
-\- vw\_hospital\_performance\_summary
+4. Connect Power BI to SQL Server and use:
+vw_hospital_performance_wide
 
-\- vw\_hospital\_performance\_export
+---
 
+## Tools Used
 
+- SQL Server
+- DBeaver
+- Power BI Desktop
+- GitHub
+- CMS public datasets
+- HRSA rural ZIP classification data
 
-\## Processed Outputs
+---
 
-\- data/processed/hospital\_performance\_export.csv
+## Skills Demonstrated
 
-\- data/processed/hospital\_master.csv
-
-\- data/processed/dim\_measure.csv
-
-
-
-\## Reproducibility
-
-
-
-This repository supports two usage paths:
-
-
-
-\### 1. Dashboard-only path
-
-Use the processed CSVs in `data/processed/`.
-
-
-
-\### 2. Full SQL rebuild path
-
-Set up SQL Server, import the raw files from `data/raw/`, and run the SQL scripts in order as described in `docs/setup\_guide.md`.
-
+- SQL data cleaning and transformation
+- Dimensional modeling
+- Multi-source data integration
+- Healthcare KPI development
+- Data quality and completeness checks
+- Analytical view creation
+- Power BI dashboard design
+- Business-question-driven storytelling
