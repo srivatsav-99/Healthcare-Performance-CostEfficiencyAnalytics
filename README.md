@@ -87,6 +87,7 @@ Analytical Views
         |
         v
 Power BI Dashboard
+```
 
 ---
 
